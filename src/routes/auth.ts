@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { exchangeToken, refreshToken, healthCheck } from '../controllers/authController';
+import { exchangeToken, refreshToken, healthCheck, debugConfig } from '../controllers/authController';
 import { asyncHandler } from '../middleware/errorHandler';
 
 const router = Router();
@@ -10,6 +10,13 @@ const router = Router();
  * @access  Public
  */
 router.get('/health', healthCheck);
+
+/**
+ * @route   GET /api/auth/debug
+ * @desc    Debug configuration endpoint
+ * @access  Public
+ */
+router.get('/debug', debugConfig);
 
 /**
  * @route   POST /api/auth/exchange

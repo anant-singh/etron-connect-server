@@ -28,7 +28,11 @@ export const exchangeToken = async (req: Request, res: Response): Promise<void> 
     Logger.info('Token exchange request', { 
       hasCode: !!code, 
       hasState: !!state,
-      ip: req.ip 
+      ip: req.ip,
+      codeLength: code?.length,
+      codePrefix: code?.substring(0, 10) + '...',
+      redirectUri: smartcarConfig.redirectUri,
+      clientId: smartcarConfig.clientId
     });
 
     // Prepare token exchange request
@@ -36,6 +40,13 @@ export const exchangeToken = async (req: Request, res: Response): Promise<void> 
       grant_type: 'authorization_code',
       code,
       redirect_uri: smartcarConfig.redirectUri,
+    });
+
+    Logger.debug('Token exchange parameters', {
+      grant_type: 'authorization_code',
+      redirect_uri: smartcarConfig.redirectUri,
+      code_length: code.length,
+      client_id: smartcarConfig.clientId
     });
 
     // Create Basic Auth header
@@ -60,14 +71,35 @@ export const exchangeToken = async (req: Request, res: Response): Promise<void> 
       const errorData = responseData as SmartcarErrorResponse;
       Logger.error('Smartcar token exchange failed', {
         status: response.status,
+        statusText: response.statusText,
         error: errorData.error,
-        description: errorData.error_description
+        description: errorData.error_description,
+        fullResponse: responseData,
+        requestDetails: {
+          url: smartcarEndpoints.tokenUrl,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'EtronConnect-Server/1.0.0',
+            'Authorization': 'Basic [REDACTED]'
+          },
+          bodyParams: {
+            grant_type: 'authorization_code',
+            redirect_uri: smartcarConfig.redirectUri,
+            code_length: code.length
+          }
+        }
       });
 
       res.status(400).json({
         success: false,
         error: 'Token exchange failed',
-        message: errorData.error_description || errorData.error || 'Unknown error'
+        message: errorData.error_description || errorData.error || 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? {
+          smartcarError: errorData.error,
+          smartcarDescription: errorData.error_description,
+          statusCode: response.status
+        } : undefined
       });
       return;
     }
@@ -204,5 +236,23 @@ export const healthCheck = (req: Request, res: Response): void => {
     message: 'EtronConnect Server is running',
     timestamp: new Date().toISOString(),
     version: '1.0.0'
+  });
+};
+
+/**
+ * Debug configuration endpoint
+ */
+export const debugConfig = (req: Request, res: Response): void => {
+  res.json({
+    success: true,
+    config: {
+      clientId: smartcarConfig.clientId,
+      redirectUri: smartcarConfig.redirectUri,
+      hasClientSecret: !!smartcarConfig.clientSecret,
+      clientSecretLength: smartcarConfig.clientSecret?.length || 0,
+      tokenUrl: smartcarEndpoints.tokenUrl,
+      nodeEnv: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    }
   });
 };
