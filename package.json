@@ -1,0 +1,51 @@
+{
+  "name": "etron-connect-server",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "postinstall": "npm run build",
+    "lint": "echo \"Linting not configured yet\"",
+    "test": "echo \"Tests not configured yet\""
+  },
+  "keywords": [
+    "smartcar",
+    "oauth",
+    "express",
+    "typescript",
+    "heroku",
+    "etron",
+    "automotive"
+  ],
+  "author": "EtronConnect Team",
+  "license": "MIT",
+  "description": "Backend server for EtronConnect app - handles Smartcar OAuth token exchange",
+  "dependencies": {
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.5.2",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
